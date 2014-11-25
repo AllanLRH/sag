@@ -31,5 +31,4 @@ def testWithFileData(filePath):
     printMatchDict(matches)
 
 if __name__ == '__main__':
-    testWithFileData("exampleTextNormalPipe.txt")
-
+    testWithFileData("exampleTextNormalPipeLongLines.txt")
