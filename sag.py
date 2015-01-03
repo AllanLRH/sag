@@ -12,7 +12,7 @@ import re
 import sys
 # import ipdb
 
-printName = lambda filename: print('\n' + Fore.CYAN + ' ' + filename + ' ' + Fore.RESET)
+printName = lambda filename: print('\n' + Fore.CYAN + filename + ' ' + Fore.RESET)
 split = re.compile('[:; ]').split
 
 def parseAckMateData(agResult):
@@ -24,7 +24,7 @@ def parseAckMateData(agResult):
             name = line[1:]
         else:
             linenumber, beginindex, endindex, matchline = split(line, maxsplit=3)
-            matchDict[name].append((int(linenumber), int(beginindex), int(endindex), matchline))
+            matchDict[name].append((linenumber, int(beginindex), int(endindex), matchline))
     return matchDict
 
 
@@ -37,7 +37,7 @@ def printMatchDict(matchDict):
             beforeHightlight = matchline[0:beginindex]
             highlighted      = Fore.YELLOW + matchline[beginindex:afterindex] + Fore.RESET
             afterHighlight   = matchline[afterindex:]
-            print((Fore.RED + '%d: ' + Fore.RESET + beforeHightlight + highlighted + afterHighlight) % linenumber)
+            print(Fore.RED + linenumber.rjust(4) + ': ' + Fore.RESET + beforeHightlight + highlighted + afterHighlight)
 
 
 def callAg():
