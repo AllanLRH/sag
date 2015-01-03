@@ -52,6 +52,15 @@ def callAg():
         raise e
 
 
+def openInSublimeText(filename, linenumber=None, columnnumber=None):
+    # subl file:line:column
+    if linenumber is not None:
+        filename += ':{}'.format(linenumber)
+        if columnnumber is not None:
+            filename += ':{}'.format(columnnumber)
+    subprocess.Popen(['subl', filename])
+
+
 if __name__ == '__main__':
     agResult = callAg()
     matchDict = parseAckMateData(agResult)
