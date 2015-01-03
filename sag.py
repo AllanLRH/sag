@@ -7,15 +7,30 @@ from __future__ import print_function
 from collections import defaultdict
 import subprocess
 from colorama import Fore, Back, Style, init
-init()
+init()  # Initialize colorama
 import re
 import sys
 # import ipdb
 
-printName = lambda filename: print('\n' + Fore.CYAN + filename + ' ' + Fore.RESET)
-split = re.compile('[:; ]').split
+printName = lambda filename: print('\n' + Fore.CYAN + filename + ' ' + Fore.RESET)  # Function tp print filenames
+split = re.compile('[:; ]').split  # function to split the lines from ackmate
 
 def parseAckMateData(agResult):
+    """
+    Function: parseAckMateData
+    Parses result from 'ag --ackmate'
+    Parameters:
+      agResult: Result from 'ag --ackmate' (multiline string)
+    Returns:
+      Dictionary where the keys are filenames and the contents is a list of tuples.
+      The list contains all the tuples, which contains the matches in the format:
+        (linenumber, beginindex, endindex, matchline)
+      Where the variables are as follows:
+        linenumber: The line number of the match (string)
+        beginindex: The column number where the matched word begins (int)
+        endindex:   The column number where the matched word ends (int)
+        matchline:  The line contens where the match occured (string)
+    """
     lines = agResult.split('\n')
     lines = [line.strip() for line in lines if line.strip()]
     matchDict = defaultdict(list)
@@ -29,6 +44,12 @@ def parseAckMateData(agResult):
 
 
 def printMatchDict(matchDict):
+    """
+    Function: printMatchDict
+    Prints out the matched dict nicely formattet.
+    Parameters:
+      matchDict: Dict with matches from parseAckMateData
+    """
     for filename in matchDict:
         printName(filename)
         for match in matchDict[filename]:
@@ -41,6 +62,12 @@ def printMatchDict(matchDict):
 
 
 def callAg():
+    """
+    Function: callAg
+    Calls ag. Everything after 'sag' is passed to the search
+    Returns:
+      Multiline string with ag result.
+    """
     command = ['/usr/local/bin/ag', '--ackmate'] + sys.argv[1:]
     call = subprocess.Popen(command, stdout=subprocess.PIPE)
     try:
@@ -53,6 +80,15 @@ def callAg():
 
 
 def openInSublimeText(filename, linenumber=None, columnnumber=None):
+    """
+    Function: openInSublimeText
+    Open specified file in Sublime Text, optionally on a specified line and column.
+    Assumes that Sublime Text is callable with 'subl'.
+    Parameters:
+      filename:       File to open in Sublime Text (string)
+      linenumber:     Linenumber to place caret at (int, optional)
+      columnnumber:   ColumnNumber to put caret at (int, optional)
+    """
     # subl file:line:column
     if linenumber is not None:
         filename += ':{}'.format(linenumber)
