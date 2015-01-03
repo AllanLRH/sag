@@ -8,30 +8,49 @@ from collections import defaultdict
 import subprocess
 from colorama import Fore, Back, Style
 import re
+import sys
+# import ipdb
 
 printName = lambda filename: print('\n' + Fore.BLUE + ' ' + filename + ' ' + Fore.RESET)
 printMatch = lambda matchTuple: print(Fore.YELLOW + matchTuple[0].rjust(6) + ':  ' + Fore.RESET + matchTuple[1])
+split = re.compile('[:; ]').split
 
-def parseNormalPipeData(lines):
+def parseAckMateData(agResult):
+    lines = agResult.split('\n')
+    lines = [line.strip() for line in lines if line.strip()]
     matchDict = defaultdict(list)
-    spl = re.compile(':')
     for line in lines:
-        filename, linenumber, matchstring = spl.split(line, maxsplit=2)
-        matchDict[filename].append((linenumber.strip(), matchstring[0:-1]))  # matchstring[0:-1] strips newline
+        if line.startswith(':'):
+            name = line[1:]
+        else:
+            linenumber, beginindex, endindex, matchline = split(line, maxsplit=3)
+            matchDict[name].append((linenumber, beginindex, endindex, matchline))
     return matchDict
+
 
 def printMatchDict(matchDict):
     for filename in matchDict:
         printName(filename)
         for match in matchDict[filename]:
             printMatch(match)
-            # print(match[0] + ':  ' + match[1])
 
-def testWithFileData(filePath):
-    with open(filePath) as fid:
-        data = fid.readlines()
-    matches = parseNormalPipeData(data)
-    printMatchDict(matches)
+
+def callAg():
+    command = ['/usr/local/bin/ag', '--ackmate'] + sys.argv[1:]
+    call = subprocess.Popen(command, stdout=subprocess.PIPE)
+    try:
+        result = call.communicate()[0]
+        result = result.decode('utf8')
+        return result
+    except Exception, e:
+        print('Communication with ag failed\n\n')
+        raise e
+
 
 if __name__ == '__main__':
-    testWithFileData("exampleTextNormalPipeLongLines.txt")
+    agResult = callAg()
+    # print(agResult)
+    matchDict = parseAckMateData(agResult)
+    print(matchDict)
+
+
