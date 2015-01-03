@@ -6,13 +6,13 @@ from __future__ import print_function
 
 from collections import defaultdict
 import subprocess
-from colorama import Fore, Back, Style
+from colorama import Fore, Back, Style, init
+init()
 import re
 import sys
 # import ipdb
 
-printName = lambda filename: print('\n' + Fore.BLUE + ' ' + filename + ' ' + Fore.RESET)
-printMatch = lambda matchTuple: print(Fore.YELLOW + matchTuple[0].rjust(6) + ':  ' + Fore.RESET + matchTuple[1])
+printName = lambda filename: print('\n' + Fore.CYAN + ' ' + filename + ' ' + Fore.RESET)
 split = re.compile('[:; ]').split
 
 def parseAckMateData(agResult):
@@ -24,7 +24,7 @@ def parseAckMateData(agResult):
             name = line[1:]
         else:
             linenumber, beginindex, endindex, matchline = split(line, maxsplit=3)
-            matchDict[name].append((linenumber, beginindex, endindex, matchline))
+            matchDict[name].append((int(linenumber), int(beginindex), int(endindex), matchline))
     return matchDict
 
 
@@ -32,7 +32,12 @@ def printMatchDict(matchDict):
     for filename in matchDict:
         printName(filename)
         for match in matchDict[filename]:
-            printMatch(match)
+            linenumber, beginindex, endindex, matchline = match
+            afterindex = beginindex + endindex
+            beforeHightlight = matchline[0:beginindex]
+            highlighted      = Fore.YELLOW + matchline[beginindex:afterindex] + Fore.RESET
+            afterHighlight   = matchline[afterindex:]
+            print((Fore.RED + '%d: ' + Fore.RESET + beforeHightlight + highlighted + afterHighlight) % linenumber)
 
 
 def callAg():
@@ -49,8 +54,5 @@ def callAg():
 
 if __name__ == '__main__':
     agResult = callAg()
-    # print(agResult)
     matchDict = parseAckMateData(agResult)
-    print(matchDict)
-
-
+    printMatchDict(matchDict)
