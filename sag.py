@@ -133,6 +133,39 @@ def openInSublimeText(filename, linenumber=None, columnnumber=None):
 
 
 if __name__ == '__main__':
+def promptUser(matchDict):  # Bug: Opens on wrong line (-1) and column (-2)
+    """
+    Function: promptUser
+    Prompt user and ask which file to open.
+    Example usage:
+        1,3 4 5,2
+    opens file 1 on matched line 3, file 4 and file 5 on matched line 2.
+        Enter 'q' or two blank lines to exit.
+    Parameters:
+      matchDict - matchDict from parseAckMateData
+    """
+    userInput = raw_input(u'\nEnter file numbers seperated by spaces, comma seperation for choosing line\n \u27A2  ')  # Unicode symbol:  ➢
+    if not userInput.strip():  # Reprompt on blank input
+        userInput = raw_input(u' \u27A2  ')
+        if not userInput.strip():  # Exit if second input is also blank
+            sys.exit(0)  # Success code
+    elif userInput.strip() == 'q':  # Exit if input is 'q'
+        sys.exit(0)  # Success code
+    else:  # open files
+        filenames = matchDict.keys()
+        toOpen = list()
+        fileSpec = userInput.split(' ')
+        for el in fileSpec:
+            if ',' in el:
+                fileIdx, lineIdx = map(int, el.split(','))
+                filename = filenames[fileIdx-1]
+                #                        Linenumber for filename            Columnnumber for filename
+                #                                            Compensate for 0-based indexing    Compensate for 0-based indexing
+                toOpen.append((filename, matchDict[filename][lineIdx-1][1], matchDict[filename][lineIdx-1][2]))
+            else:
+                toOpen.append((filenames[int(el)-1],))
+        for el in toOpen:
+            openInSublimeText(*el)
     agResult = callAg()
     matchDict = parseAckMateData(agResult)
     printMatchDict(matchDict)
