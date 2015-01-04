@@ -121,6 +121,7 @@ def openInSublimeText(filename, linenumber=None, columnnumber=None):
       linenumber:     Linenumber to place caret at (int, optional)
       columnnumber:   ColumnNumber to put caret at (int, optional)
     """
+    # format for opening in Sublime Text is:
     # subl file:line:column
     if linenumber is not None:
         filename += ':{}'.format(linenumber)
