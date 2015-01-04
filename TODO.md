@@ -1,7 +1,6 @@
 # TODO
 
 * Handle UTF-8 encoding
-* Use Ordered Defaultdict (http://stackoverflow.com/questions/6190331/can-i-do-an-ordered-default-dict-in-python)
 * Read config file for color and layout
 * Add function to open file in Sublime Text
 * Structure call to open in editor as a "plugin"
