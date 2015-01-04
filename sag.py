@@ -10,6 +10,8 @@ from colorama import Fore, Back, Style, init
 init()  # Initialize colorama
 import re
 import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 # import ipdb
 
 
@@ -44,7 +46,7 @@ class DefaultOrderedDict(OrderedDict):
         return 'OrderedDefaultDict(%s, %s)' % (self.default_factory, OrderedDict.__repr__(self))
 
 
-printName = lambda filename: print('\n' + Fore.CYAN + filename + ' ' + Fore.RESET)  # Function tp print filenames
+printName = lambda inArg: print('\n' + Back.CYAN + Fore.BLACK + str(inArg[0]+1) + Fore.RESET + Back.RESET + ':   ' + Fore.CYAN + inArg[1] + ' ' + Fore.RESET)  # Function tp print filenames. inArg: (index, filename)
 split = re.compile('[:; ]').split  # function to split the lines from ackmate
 
 def parseAckMateData(agResult):
@@ -82,15 +84,15 @@ def printMatchDict(matchDict):
     Parameters:
       matchDict: Dict with matches from parseAckMateData
     """
-    for filename in matchDict:
-        printName(filename)
-        for match in matchDict[filename]:
+    for idx, filename in enumerate(matchDict):
+        printName((idx, filename))
+        for idx, match in enumerate(matchDict[filename]):
             linenumber, beginindex, endindex, matchline = match
             afterindex = beginindex + endindex
             beforeHightlight = matchline[0:beginindex]
             highlighted      = Fore.YELLOW + matchline[beginindex:afterindex] + Fore.RESET
             afterHighlight   = matchline[afterindex:]
-            print(Fore.RED + linenumber.rjust(4) + ': ' + Fore.RESET + beforeHightlight + highlighted + afterHighlight)
+            print(Fore.CYAN + str(idx+1) + Fore.RESET + Fore.RED + linenumber.rjust(4) + ': ' + Fore.RESET + beforeHightlight + highlighted + afterHighlight)
 
 
 def callAg():
