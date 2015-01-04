@@ -132,7 +132,6 @@ def openInSublimeText(filename, linenumber=None, columnnumber=None):
     subprocess.Popen(['subl', filename])
 
 
-if __name__ == '__main__':
 def promptUser(matchDict):  # Bug: Opens on wrong line (-1) and column (-2)
     """
     Function: promptUser
@@ -166,6 +165,18 @@ def promptUser(matchDict):  # Bug: Opens on wrong line (-1) and column (-2)
                 toOpen.append((filenames[int(el)-1],))
         for el in toOpen:
             openInSublimeText(*el)
+
+
+
+
+def main():
     agResult = callAg()
     matchDict = parseAckMateData(agResult)
     printMatchDict(matchDict)
+    promptUser(matchDict)
+
+
+
+
+if __name__ == '__main__':
+    main()
