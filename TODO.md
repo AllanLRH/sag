@@ -1,6 +1,7 @@
 # TODO
 
 * Handle UTF-8 encoded filenames
+* Handle multiple matches pr. line
 * Structure call to open in editor as a "plugin"
 * Enable settings for the program from rc-file
 * Add a glob -> regex converter to enable glob file matching
