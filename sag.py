@@ -46,7 +46,8 @@ class DefaultOrderedDict(OrderedDict):
         return 'OrderedDefaultDict(%s, %s)' % (self.default_factory, OrderedDict.__repr__(self))
 
 
-printName = lambda inArg: print('\n' + Back.CYAN + Fore.BLACK + str(inArg[0]+1) + Fore.RESET + Back.RESET + ':   ' + Fore.CYAN + inArg[1] + ' ' + Fore.RESET)  # Function tp print filenames. inArg: (index, filename)
+# Function tp print filenames. inArg: (index, filename)
+printName = lambda inArg: print('\n' + Back.CYAN + Fore.BLACK + str(inArg[0]+1) + Fore.RESET + Back.RESET + ':   ' + Fore.CYAN + inArg[1] + ' ' + Fore.RESET)
 split = re.compile('[:; ]').split  # function to split the lines from ackmate
 
 def parseAckMateData(agResult):
