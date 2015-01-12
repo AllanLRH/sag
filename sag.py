@@ -140,6 +140,25 @@ def openInSublimeText(filesToOpen):
 
 
 def promptUser(isFirstCall=True):
+    """
+    Function: promptUser
+    Prompt the user for input.
+    Can be terminated by pressing 'q'.
+    If a blank line is entered, the promptUser will call itself recursively, but with
+    the parameter isFirstCall = False, and thus terminate the program if a blank line
+    is entered a second time.
+
+    The input format is simple - example:
+      1,2 4,3 6
+    opens matched file number 1, with the cursor placed in the 2nd listed matched line,
+    matched file number 4 with ther cursor placed on the 3rd matched line, and the 6th
+    matched file.
+    Parameters:
+      isFirstCall - True if first call(default), should be False otherwise
+    Returns:
+      From the example above:
+      [['1', '2'], ['4', '3'], ['6']]
+    """
     promptCharacter = u' \u27A2  '  # Unicode symbol:  ➢
     initialPrompt   = u'\nEnter file numbers seperated by spaces, comma seperation for choosing line\n'
     if isFirstCall:
@@ -156,6 +175,16 @@ def promptUser(isFirstCall=True):
 
 
 def executeUserPrompt(matchDict, parsedInput):
+    """
+    Function: executeUserPrompt
+    Converts user input (file number and possoble a number indicating
+    which of the matched lines the cursor should be positioned at) to
+    the corresponding filepath, linenumber and columnnumber.
+    It calls openInSublimeText to open the files specified by the user.
+    Parameters:
+      matchDict: Dict with matches from parseAckMateData
+      parsedInput - The parsed input from promptUser
+    """
     filenames = matchDict.keys()
     filesToOpen = list()
     for userInput in parsedInput:
@@ -170,6 +199,11 @@ def executeUserPrompt(matchDict, parsedInput):
 
 
 def main():
+    """
+    Function: main
+    Calls all other functions in the script in the correct order,
+    and passes data between them
+    """
     agResult = callAg()
     matchDict = parseAckMateData(agResult)
     printMatchDict(matchDict)
