@@ -114,69 +114,67 @@ def callAg():
         raise e
 
 
-def openInSublimeText(filename, linenumber=None, columnnumber=None):
+def openInSublimeText(filesToOpen):
     """
     Function: openInSublimeText
     Open specified file in Sublime Text, optionally on a specified line and column.
     Assumes that Sublime Text is callable with 'subl'.
     Parameters:
-      filename:       File to open in Sublime Text (string)
-      linenumber:     Linenumber to place caret at (int, optional)
-      columnnumber:   ColumnNumber to put caret at (int, optional)
+      filesToOpen:    A list containing list with elements:
+          filename:       File to open in Sublime Text (string)
+          linenumber:     Linenumber to place caret at (int, optional)
+          columnnumber:   ColumnNumber to put caret at (int, optional)
+      as the one created from
     """
-    # format for opening in Sublime Text is:
-    # subl file:line:column
-    if linenumber is not None:
-        filename += ':{}'.format(linenumber)
-        if columnnumber is not None:
-            filename += ':{}'.format(columnnumber)
-    subprocess.Popen(['subl', filename])
+    # format for opening files in Sublime Text is:
+    # subl file1 file2:line file3:line:column
+    fileOpenSpecList = list()
+    for toOpen in filesToOpen:
+        fileOpenSpec = toOpen[0]
+        if len(toOpen) > 1:
+            fileOpenSpec += ':{}'.format(toOpen[1])
+            if len(toOpen) > 2:
+                fileOpenSpec += ':{}'.format(toOpen[2])
+        fileOpenSpecList.append(fileOpenSpec)
+    subprocess.Popen(['subl'] + fileOpenSpecList)
 
 
-def promptUser(matchDict):  # Bug: Opens on wrong line (-1) and column (-2)
-    """
-    Function: promptUser
-    Prompt user and ask which file to open.
-    Example usage:
-        1,3 4 5,2
-    opens file 1 on matched line 3, file 4 and file 5 on matched line 2.
-        Enter 'q' or two blank lines to exit.
-    Parameters:
-      matchDict - matchDict from parseAckMateData
-    """
-    userInput = raw_input(u'\nEnter file numbers seperated by spaces, comma seperation for choosing line\n \u27A2  ')  # Unicode symbol:  ➢
-    if not userInput.strip():  # Reprompt on blank input
-        userInput = raw_input(u' \u27A2  ')
-        if not userInput.strip():  # Exit if second input is also blank
-            sys.exit(0)  # Success code
-    elif userInput.strip() == 'q':  # Exit if input is 'q'
-        sys.exit(0)  # Success code
-    else:  # open files
-        filenames = matchDict.keys()
-        toOpen = list()
-        fileSpec = userInput.split(' ')
-        for el in fileSpec:
-            if ',' in el:
-                fileIdx, lineIdx = map(int, el.split(','))
-                filename = filenames[fileIdx-1]
-                #                        Linenumber for filename            Columnnumber for filename
-                #                                            Compensate for 0-based indexing    Compensate for 0-based indexing
-                toOpen.append((filename, matchDict[filename][lineIdx-1][1], matchDict[filename][lineIdx-1][2]))
-            else:
-                toOpen.append((filenames[int(el)-1],))
-        for el in toOpen:
-            openInSublimeText(*el)
+def promptUser(isFirstCall=True):
+    promptCharacter = u' \u27A2  '  # Unicode symbol:  ➢
+    initialPrompt   = u'\nEnter file numbers seperated by spaces, comma seperation for choosing line\n'
+    if isFirstCall:
+        userInput = raw_input(initialPrompt + promptCharacter).strip()
+    else:
+        userInput = raw_input(promptCharacter).strip()
+    if not userInput.strip() and isFirstCall:
+        promptUser(isFirstCall=False)
+    elif not userInput.strip() and not isFirstCall:
+        sys.exit()
+    splitInput = userInput.split(' ')
+    parsedInput = [el.split(',') for el in splitInput]
+    return parsedInput
 
 
+def executeUserPrompt(matchDict, parsedInput):
+    filenames = matchDict.keys()
+    filesToOpen = list()
+    for userInput in parsedInput:
+        filename          = filenames[int(userInput[0]) - 1]
+        matchedLineNumber = int(userInput[1]) - 1 if len(userInput) > 1 else None
+        openArgs          = [filename]
+        if matchedLineNumber:
+            openArgs.append(matchDict[filename][matchedLineNumber][0])  # line number to place caret at
+            openArgs.append(matchDict[filename][matchedLineNumber][1] + 1)  # Column number to place caret at, compensate for 0 indexing
+        filesToOpen.append(openArgs)
+    openInSublimeText(filesToOpen)
 
 
 def main():
     agResult = callAg()
     matchDict = parseAckMateData(agResult)
     printMatchDict(matchDict)
-    promptUser(matchDict)
-
-
+    psersedUserInput = promptUser()
+    executeUserPrompt(matchDict, psersedUserInput)
 
 
 if __name__ == '__main__':
