@@ -10,6 +10,7 @@ from colorama import Fore, Back, Style, init
 init()  # Initialize colorama
 import re
 import sys
+import readline
 reload(sys)
 sys.setdefaultencoding("utf-8")
 # import ipdb
@@ -139,7 +140,7 @@ def openInSublimeText(filesToOpen):
     subprocess.Popen(['subl'] + fileOpenSpecList)
 
 
-def promptUser(isFirstCall=True):
+def promptUser(isFirstCall=True, exit=False):  # BUG: First input seems to be stored, even though the function is called again (by itself recursively)
     """
     Function: promptUser
     Prompt the user for input.
@@ -160,15 +161,22 @@ def promptUser(isFirstCall=True):
       [['1', '2'], ['4', '3'], ['6']]
     """
     promptCharacter = u' \u27A2  '  # Unicode symbol:  ➢
-    initialPrompt   = u'\nEnter file numbers seperated by spaces, comma seperation for choosing line\n'
-    if isFirstCall:
-        userInput = raw_input(initialPrompt + promptCharacter).strip()
-    else:
+    initialPrompt   = u'\nEnter file numbers seperated by spaces, comma seperation for choosing line'
+    print(initialPrompt)
+    blankLineWasPassed = False
+    while True:
         userInput = raw_input(promptCharacter).strip()
-    if not userInput.strip() and isFirstCall:
-        promptUser(isFirstCall=False)
-    elif not userInput.strip() and not isFirstCall:
-        sys.exit()
+        if not set(userInput).issubset({' ', ',', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'q', '\n'}):  # check user input
+            print("Invalid characters detected, use only numbers, comma and space. enter 'q' to quit.")
+            continue  # restart loop
+        elif userInput == 'q':
+            sys.exit()
+        elif len(userInput) == 0:  # Blank line or spaces
+            if blankLineWasPassed:
+                sys.exit()
+            blankLineWasPassed = True
+        else:  # break out of loop and parse input
+            break
     splitInput = userInput.split(' ')
     parsedInput = [el.split(',') for el in splitInput]
     return parsedInput
